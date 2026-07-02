@@ -1,4 +1,4 @@
-# auditoria-eval4
+# Auditoria de Software - Evaluación 4
 
 Repositorio de evidencia de la Auditoría de Software — INACAP, Evaluación 4 (Parte 2: Ejecución de Pruebas).
 
