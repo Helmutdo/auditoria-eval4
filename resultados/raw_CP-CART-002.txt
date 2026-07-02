@@ -1,0 +1,21 @@
+=== CP-CART-002: CSRF en carrito.php (op=3) ===
+--- Paso 1: login valido (para tener $_SESSION['nombre'] como marcador verificable de sesion activa) ---
+Login realizado.
+
+--- Estado ANTES del ataque CSRF: index.php debe mostrar 'Bienvenido :Administrador' ---
+Bienvenido :Administrador
+
+--- Paso 2: simular peticion CSRF: POST op=3 con Origin de un sitio externo (carrito.php no valida Origin/Referer/token CSRF), reutilizando solo la cookie de sesion valida robada/heredada ---
+HTTP/1.1 200 OK
+Host: localhost:8000
+Date: Thu, 02 Jul 2026 01:01:06 GMT
+Connection: close
+X-Powered-By: PHP/8.5.8
+Expires: Thu, 19 Nov 1981 08:52:00 GMT
+Cache-Control: no-store, no-cache, must-revalidate
+Pragma: no-cache
+Content-type: text/html; charset=UTF-8
+
+
+--- Paso 3: verificar si la sesion fue destruida: con la MISMA cookie PHPSESSID, index.php ya NO debe mostrar 'Bienvenido :Administrador' ---
+SESION DESTRUIDA: 'Bienvenido :Administrador' ya no aparece con la misma cookie -> CSRF confirmado (op=3 se ejecuto sin validar origen)
