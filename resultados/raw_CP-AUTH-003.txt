@@ -1,0 +1,11 @@
+=== CP-AUTH-003: almacenamiento de contraseñas en BD 'security', tabla usuarios ===
+--- Consulta SQL ejecutada directamente contra MariaDB (acceso equivalente al de un atacante con acceso a la BD, ej. via SQLi de CP-CART-001) ---
+SELECT Id, nombre, email, password, estado FROM usuarios;
+
+Id	nombre	email	password	estado
+1	Administrador	admin@gmail.com	admin01	1
+2	Alondra	alondra@gmail.com	alondra01	1
+
+--- Analisis: se verifica si el campo password matchea un formato de hash conocido (bcrypt $2y$, sha256, argon2 $argon2) ---
+  'admin01' -> TEXTO PLANO (no es hash)
+  'alondra01' -> TEXTO PLANO (no es hash)
