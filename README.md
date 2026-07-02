@@ -16,12 +16,26 @@ Git) de la pauta, dejando trazabilidad de cada caso ejecutado mediante commits i
 ```
 auditoria-eval4/
   scripts/          Scripts bash que automatizan cada caso de prueba (curl + consultas SQL)
-  evidencia/         Una carpeta por caso (CP-AUTH-001 ... CP-CART-003) para capturas manuales
+  evidencia/         Una carpeta por caso (CP-AUTH-001 ... CP-CART-003) con capturas de pantalla
   resultados/
     raw_CP-*.txt         Salida cruda (headers HTTP + body + queries SQL) de cada script ejecutado
     resultados_ejecucion.md   Informe consolidado: resultado real por caso, discrepancias vs.
                               el análisis estático de Parte 1, y estado del entorno de prueba
 ```
+
+### Capturas de pantalla disponibles
+
+| Caso | Archivos en `evidencia/` | Qué muestran |
+|---|---|---|
+| CP-AUTH-002 | `01_payload_ingresado.jpeg`, `02_bypass_login_exitoso.jpeg` | Payload SQLi en el formulario y bypass de login exitoso ("Bienvenido :Administrador") |
+| CP-AUTH-003 | `01_passwords_texto_plano.jpeg` | Tabla `usuarios` vía cliente SQL mostrando contraseñas en texto plano |
+| CP-AUTH-004 | `01_phpsessid_antes_login.jpeg`, `02_phpsessid_despues_login_identico.jpeg` | `PHPSESSID` idéntico antes/después del login (DevTools → Application → Cookies) |
+| CP-COM-001 | `01_alert_ejecutado.jpeg` | `alert()` del XSS almacenado ejecutándose en el navegador |
+| CP-CART-002 | `01_csrf_ejecutado_fetch.jpeg`, `02_sesion_destruida_tras_csrf.jpeg` | Ataque CSRF vía `fetch()` y sesión destruida al recargar |
+
+Los demás casos (CP-AUTH-001, CP-COM-002, CP-COM-003, CP-CART-001, CP-CART-003) quedaron
+completamente verificados con evidencia cruda HTTP/SQL en `resultados/raw_CP-*.txt`, sin
+necesitar captura visual adicional.
 
 ## Casos de prueba cubiertos
 
